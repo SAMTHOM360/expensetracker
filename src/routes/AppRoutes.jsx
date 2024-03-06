@@ -8,6 +8,7 @@ import { Box } from "@mui/material";
 import LoadingComponent from "../components/LoadingComponent";
 import SideBar from "../features/sidebar/Sidebar";
 import GroupComponent from "../features/group/GroupComponent";
+import AddExpenses from "../features/activity/AddExpenses";
 import PrivateRoute from "./PrivateRoute";
 const AppRoutes = () => {
   const location = useLocation();
@@ -31,6 +32,10 @@ const AppRoutes = () => {
                 <Route
                   path="/group"
                   element={<PrivateRoute element={<GroupComponent />} />}
+                />
+                <Route
+                  path="/activity"
+                  element={<PrivateRoute element={<AddExpenses />} />}
                 />
               </Routes>
             </div>

@@ -25,7 +25,7 @@ const SignUpSignIn = () => {
   const initialFormData = useMemo(
     () => ({
       name: "",
-      phoneNo: "",
+      phone: "",
       email: "",
       username: "",
       confirmPassword: "",
@@ -129,7 +129,7 @@ const SignUpSignIn = () => {
       e.preventDefault();
       const trimmedName = formData.name ? formData.name.trim() : "";
       const trimmedEmail = formData.email ? formData.email.trim() : "";
-      const trimmedPhoneNo = formData.phoneNo ? formData.phoneNo.trim() : "";
+      const trimmedPhone = formData.phone ? formData.phone.trim() : "";
       const trimmedPassword = formData.password ? formData.password.trim() : "";
       const trimmedConfirmPassword = formData.confirmPassword
         ? formData.confirmPassword.trim()
@@ -151,7 +151,7 @@ const SignUpSignIn = () => {
         return;
       }
 
-      if (!trimmedPhoneNo) {
+      if (!trimmedPhone) {
         toast.warn("Phone is required !", {
           toastId: "login-warn13",
         });
@@ -178,7 +178,7 @@ const SignUpSignIn = () => {
       let payload = {
         name: trimmedName,
         email: trimmedEmail,
-        phoneNo: trimmedPhoneNo,
+        phone: trimmedPhone,
         password: trimmedPassword,
       };
       try {
@@ -193,6 +193,10 @@ const SignUpSignIn = () => {
           toast.success(response?.data?.message);
           setFormData(initialFormData);
           setIsSignUp(false);
+        } else {
+          toast.error(response?.data?.message || response?.message, {
+            // toastId: "login-err01",
+          });
         }
       } catch (error) {
         toast.error(error?.data?.message || error?.data);
@@ -203,7 +207,7 @@ const SignUpSignIn = () => {
     [
       formData.name,
       formData.email,
-      formData.phoneNo,
+      formData.phone,
       formData.confirmPassword,
       formData.password,
       initialFormData,
@@ -366,10 +370,10 @@ const SignUpSignIn = () => {
                       <TextField
                         variant="standard"
                         size="small"
-                        id="phoneNo"
-                        name="phoneNo"
-                        label="PhoneNo"
-                        value={formData?.phoneNo}
+                        id="phone"
+                        name="phone"
+                        label="phone"
+                        value={formData?.phone}
                         onChange={handleChange}
                         fullWidth
                         required
