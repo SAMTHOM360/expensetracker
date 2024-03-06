@@ -8,18 +8,20 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useCallback, useMemo, useState } from "react";
-import signUpSignInAction from "../actions/signUpSignInAction";
-// import { useNavigate } from "react-router-dom";
+import signUpSignInAction from "../../actions/signUpSignInAction";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import CircularProgress from "@mui/material/CircularProgress";
+import { useAuth } from "../../routes/AuthContext";
 
 // import EXPENSE_LOGO from "../img/expense.png";
 
 const SignUpSignIn = () => {
-  //   const navigate = useNavigate();
+  const navigate = useNavigate();
+  const { setAuthenticated } = useAuth();
   const initialFormData = useMemo(
     () => ({
       name: "",
@@ -89,55 +91,6 @@ const SignUpSignIn = () => {
       };
       // debugger
 
-      //   try {
-      //     setIsButtonLoading(true);
-      //     const response = await signUpSignInAction.signIn(payload);
-
-      //     let toastMessge = "";
-
-      //     if (response && (response.status === 200 || response.status === 201)) {
-      //       // console.log('DATAA:  ', response.data.data)
-
-      //       toastMessge = response?.data?.message;
-      //       const cleanedMessage = JSON.stringify(toastMessge);
-      //       toast.success(JSON.parse(cleanedMessage), {
-      //         toastId: "login-success01",
-      //       });
-
-      //       const credData = response.data.data;
-
-      //       console.log("sign in data: ", credData);
-
-      //       //   sessionStorage.setItem("loginData", JSON.stringify(credData));
-
-      //       //   navigate("/dashboard");
-      //     } else {
-      //       if (
-      //         response &&
-      //         response.status &&
-      //         (response.status !== 200 || response.status !== 201)
-      //       ) {
-      //         toastMessge = response?.data?.message;
-      //         const cleanedMessage = JSON.stringify(toastMessge);
-      //         toast.error(JSON.parse(cleanedMessage), {
-      //           toastId: "login-err01",
-      //         });
-      //         // console.error("RESPONSE MSG:  ", response.data.message);
-      //       } else {
-      //         toastMessge = response?.message;
-      //         const cleanedMessage = JSON.stringify(toastMessge);
-      //         toast.error(JSON.parse(cleanedMessage), {
-      //           toastId: "login-err02",
-      //         });
-      //         // console.error("AXIOS MSG:  ", response.message);
-      //       }
-      //     }
-      //   } catch (error) {
-      //     console.error("Something went wrong:  ", error);
-      //   } finally {
-      //     setIsButtonLoading(false);
-      //   }
-
       try {
         setIsButtonLoading(true);
         const response = await signUpSignInAction.signIn(payload);
@@ -152,9 +105,11 @@ const SignUpSignIn = () => {
 
           console.log("sign in data: ", credData);
 
-          //   sessionStorage.setItem("loginData", JSON.stringify(credData));
+          setAuthenticated(true);
 
-          //   navigate("/dashboard");
+          sessionStorage.setItem("loginData", JSON.stringify(credData));
+
+          navigate("/dashboard");
         } else {
           toast.error(response?.data?.message || response?.message, {
             // toastId: "login-err01",
@@ -166,7 +121,7 @@ const SignUpSignIn = () => {
         setIsButtonLoading(false);
       }
     },
-    [formData?.password, formData?.username]
+    [formData?.password, formData?.username, navigate, setAuthenticated]
   );
 
   const handleSignUp = useCallback(
@@ -262,7 +217,7 @@ const SignUpSignIn = () => {
     setShowConfirmPassword(false);
   }, [initialFormData]);
 
-  console.log("log form", formData);
+  // console.log("log form", formData);
   return (
     <>
       <Box

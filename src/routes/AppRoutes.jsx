@@ -1,34 +1,41 @@
 import React from "react";
-import {
-  Routes,
-  Route,
-  //  useLocation
-} from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import SignUpSignIn from "../components/SignUpSignIn";
+import SignUpSignIn from "../features/signUpSignIn/SignUpSignIn";
+import Navbar from "../features/navbar/Navbar";
+import { Box } from "@mui/material";
+import LoadingComponent from "../components/LoadingComponent";
+import SideBar from "../features/sidebar/Sidebar";
+import GroupComponent from "../features/group/GroupComponent";
+import PrivateRoute from "./PrivateRoute";
 const AppRoutes = () => {
-  //   const location = useLocation();
-  //   const isExcludedRouteForNavBar = !["/"].some(
-  //     (route) => location.pathname === route
-  //   );
+  const location = useLocation();
+  const isExcludedRouteForNavBar = !["/"].some(
+    (route) => location.pathname === route
+  );
   return (
     <>
-      <div
-        style={{
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexDirection: "column",
-        }}
-      >
-        {/* {isExcludedRouteForNavBar && <Navbar />} */}
-        <Routes>
-          <Route path="/" element={<SignUpSignIn />} />
-          {/* <Route path="/dashboard" element={<Dashboard />} /> */}
-        </Routes>
-
+      <div>
+        <React.Suspense fallback={<LoadingComponent open={true} />}>
+          <Box
+            sx={{
+              display: "flex",
+            }}
+          >
+            {isExcludedRouteForNavBar && <SideBar />}
+            <div style={{ flexGrow: 1 }}>
+              {isExcludedRouteForNavBar && <Navbar />}
+              <Routes>
+                <Route path="/" element={<SignUpSignIn />} />
+                <Route
+                  path="/group"
+                  element={<PrivateRoute element={<GroupComponent />} />}
+                />
+              </Routes>
+            </div>
+          </Box>
+        </React.Suspense>
         <ToastContainer
           position="top-right"
           autoClose={1800}
