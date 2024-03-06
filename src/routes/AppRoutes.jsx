@@ -9,6 +9,8 @@ import LoadingComponent from "../components/LoadingComponent";
 import SideBar from "../features/sidebar/Sidebar";
 import GroupComponent from "../features/group/GroupComponent";
 import PrivateRoute from "./PrivateRoute";
+import Dashboard from "../features/dashboard/Dashboard";
+import Friends from "../features/friends/Friends";
 const AppRoutes = () => {
   const location = useLocation();
   const isExcludedRouteForNavBar = !["/"].some(
@@ -23,14 +25,22 @@ const AppRoutes = () => {
               display: "flex",
             }}
           >
-            {isExcludedRouteForNavBar && <SideBar />}
             <div style={{ flexGrow: 1 }}>
+              {isExcludedRouteForNavBar && <SideBar />}
               {isExcludedRouteForNavBar && <Navbar />}
               <Routes>
                 <Route path="/" element={<SignUpSignIn />} />
                 <Route
+                  path="/dashboard"
+                  element={<PrivateRoute element={<Dashboard />} />}
+                />
+                <Route
                   path="/group"
                   element={<PrivateRoute element={<GroupComponent />} />}
+                />
+                <Route
+                  path="/friends"
+                  element={<PrivateRoute element={<Friends />} />}
                 />
               </Routes>
             </div>
