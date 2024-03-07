@@ -22,11 +22,18 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import ToggleOnIcon from "@mui/icons-material/ToggleOn";
 
+// import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import dayjs from "dayjs";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+
 // import { ExpenseAction } from "../actions/ExpenseAction";
 
 import expenseAction from "../../actions/expenseAction";
 
-const rows = [];
+// const rows = [];
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -39,8 +46,21 @@ const MenuProps = {
     variant: "standard",
   },
 };
-
+// handling the time change function
+const handleDateChange = (date) => {
+  if (date) {
+    const dateObject = new Date(date);
+    const year = dateObject.getFullYear();
+    const month = String(dateObject.getMonth() + 1).padStart(2, "0");
+    const day = String(dateObject.getDate()).padStart(2, "0");
+    const formattedDate = `${year}-${month}-${day}`;
+    return formattedDate;
+  }
+};
 const AddExpense = () => {
+  const sessionData = JSON.parse(sessionStorage.getItem("loginData"));
+  const userId = sessionData?.id;
+  console.log("user id for payload", userId);
   const [formData, setFormData] = useState({
     description: "",
     amount: "",
@@ -48,7 +68,9 @@ const AddExpense = () => {
     // paidBy: [],
     userId: "",
     split: [],
+    endDate: null,
   });
+  const [rows, setRows] = React.useState([]);
   const [category, setCategory] = React.useState([]);
   const [friends, setFriends] = React.useState([]);
   const [splitEnabled, setSplitEnabled] = useState(false);
@@ -98,7 +120,8 @@ const AddExpense = () => {
     try {
       const res = await expenseAction.getTableData();
       if (res.status === 200) {
-        console.log("table data", res);
+        console.log("table data", res.data.data);
+        setRows(res.data.data);
       }
     } catch (err) {
       console.error(err);
@@ -119,25 +142,27 @@ const AddExpense = () => {
       isSplit: splitEnabled,
       // expenseDate: new Date().toISOString().split("T")[0],
       // userId: formData.userId,
-      userId: 5,
-      splitUsers: formData.split,
+      userId: userId,
+      // splitUsers: formData.split,
+      splitUsers: [userId, ...formData.split],
+      expenseDate: formData.endDate,
     };
+    console.log("inside handle submit ");
     try {
       const response = await expenseAction.addExpense(payload);
       console.log(response);
     } catch (err) {
-      console.error(err);
+      console.error(err, "this is error message");
     }
-
     console.log("payload ", payload);
 
-    setFormData({
-      description: "",
-      amount: "",
-      paidBy: "",
-      split: [],
-      category: "",
-    });
+    // setFormData({
+    //   description: "",
+    //   amount: "",
+    //   paidBy: "",
+    //   split: [],
+    //   category: "",
+    // });
   };
   React.useEffect(() => {
     getAllFriends();
@@ -255,7 +280,7 @@ const AddExpense = () => {
                   name="category"
                   value={formData.category} // Set the value attribute here
                 >
-                  {category.map((item) => (
+                  {category?.map((item) => (
                     <MenuItem key={item.id} value={item.name}>
                       {item.name}
                     </MenuItem>
@@ -295,7 +320,7 @@ const AddExpense = () => {
             </Box>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          {/* <Grid item xs={12} md={6}>
             <Box
               sx={{
                 bgcolor: "#D6F2FB",
@@ -304,48 +329,19 @@ const AddExpense = () => {
                 borderRadius: "10px",
               }}
             >
-              {/* <FormControl
-                fullWidth
-                variant="standard"
-                sx={{
-                  backgroundColor: "#D6F2FB",
-                  borderRadius: "0.25em",
-                  height: "3.4em",
-                }}
-              >
-                <InputLabel id="demo-multiple-name-label" required>
-                  Paid By
-                </InputLabel>
-                <Select
-                  labelId="demo-multiple-name-label"
-                  id="demo-multiple-name"
-                  multiple
-                  value={formData.paidBy}
-                  disableUnderline={true}
-                  onChange={(e) => handleChange(e, "paidBy")}
-                  MenuProps={MenuProps}
-                  name="type"
-                >
-                  {data.map((name) => (
-                    <MenuItem key={name.id} value={name.id}>
-                      {name.username}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl> */}
               <Autocomplete
                 sx={{
                   backgroundColor: "#D6F2FB",
                   borderRadius: "0.25em",
                   height: "3.4em",
                 }}
-                options={friends.map((item) => item.username)} // Map over data array and extract usernames
+                options={friends?.map((item) => item?.username) || []}
                 renderInput={(params) => (
                   <TextField {...params} label="Paid By" variant="standard" />
                 )}
               />
             </Box>
-          </Grid>
+          </Grid> */}
           <Grid item xs={12} md={6}>
             <Box
               sx={{
@@ -378,13 +374,61 @@ const AddExpense = () => {
                   MenuProps={MenuProps}
                   name="type"
                 >
-                  {friends.map((name) => (
+                  {friends?.map((name) => (
                     <MenuItem key={name.id} value={name.id}>
                       {name.username}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
+            </Box>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Box
+              sx={{
+                bgcolor: "#D6F2FB",
+                paddingX: "10px",
+                paddingY: "2px",
+                borderRadius: "10px",
+              }}
+            >
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  // name="endDate"
+                  // value={formData.endDate}
+                  // onChange={(date) =>
+                  //   handleChange({ target: { name: "endDate", value: date } })
+                  // }
+                  value={formData.endDate ? dayjs(formData.endDate) : null}
+                  label="expense date"
+                  format="YYYY-MM-DD"
+                  slots={{
+                    openPickerIcon: () => (
+                      <CalendarMonthIcon sx={{ color: "#281C61" }} />
+                    ),
+                  }}
+                  required
+                  slotProps={{
+                    field: {
+                      readOnly: true,
+                    },
+                    textField: {
+                      variant: "standard",
+                      InputProps: {
+                        disableUnderline: true,
+                      },
+                      sx: { height: "3.5em", width: "100%" },
+                      required: true,
+                    },
+                  }}
+                  onChange={(date) =>
+                    setFormData({
+                      ...formData,
+                      endDate: handleDateChange(date),
+                    })
+                  }
+                />
+              </LocalizationProvider>
             </Box>
           </Grid>
           <Grid
@@ -423,30 +467,35 @@ const AddExpense = () => {
             <TableHead>
               <TableRow>
                 <TableCell sx={{ color: "#fff", backgroundColor: "black" }}>
-                  Description
-                </TableCell>
-                <TableCell sx={{ color: "#fff", backgroundColor: "black" }}>
                   Amount
                 </TableCell>
                 <TableCell sx={{ color: "#fff", backgroundColor: "black" }}>
-                  Paid By
+                  Category
                 </TableCell>
                 <TableCell sx={{ color: "#fff", backgroundColor: "black" }}>
+                  Description
+                </TableCell>
+                {/* <TableCell sx={{ color: "#fff", backgroundColor: "black" }}>
+                  Paid By
+                </TableCell> */}
+                <TableCell sx={{ color: "#fff", backgroundColor: "black" }}>
                   Split
+                </TableCell>
+                <TableCell sx={{ color: "#fff", backgroundColor: "black" }}>
+                  Expense Date
                 </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.length > 0 ? (
-                rows.map((row) => (
-                  <TableRow key={row.name}>
-                    <TableCell component="th" scope="row">
-                      {row.name}
-                    </TableCell>
-                    <TableCell>{row.calories}</TableCell>
-                    <TableCell>{row.fat}</TableCell>
+              {rows?.length > 0 ? (
+                rows?.map((row, index) => (
+                  <TableRow key={index}>
+                    <TableCell scope="row">{row.amount}</TableCell>
+                    <TableCell>{row.categoryId}</TableCell>
+                    <TableCell>{row.description}</TableCell>
                     <TableCell>{row.carbs}</TableCell>
-                    <TableCell>{row.protein}</TableCell>
+                    <TableCell>{row.expenseDate}</TableCell>
+                    {/* <TableCell>{row.protein}</TableCell> */}
                   </TableRow>
                 ))
               ) : (

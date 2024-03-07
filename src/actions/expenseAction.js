@@ -4,7 +4,7 @@ import services from "../services/services";
 import config from "../config/config";
 
 const sessionData = JSON.parse(sessionStorage.getItem("loginData"));
-// const userID = sessionData.id;
+const userID = sessionData?.id;
 const getAllCategories = async () => {
   const apiEndPoint = config.baseUrl + config.apiName.categories;
 
@@ -18,11 +18,13 @@ const getAllCategories = async () => {
   }
 };
 const getAllFriends = async () => {
-  const apiEndPoint = config.baseUrl2 + config.apiName.friends;
+  const apiEndPoint = config.baseUrl + config.apiName.friends;
 
-  const userID = 1;
+  // const userID = 1;
   try {
-    const res = await services.get(apiEndPoint, { userID });
+    // const res = await services.get(apiEndPoint, { userID });
+    const res = await services.get(apiEndPoint + `?userID=${userID}`);
+
     if (res) {
       return res;
     }
@@ -32,9 +34,14 @@ const getAllFriends = async () => {
 };
 
 const addExpense = async (payload) => {
-  const apiEndPoint = config.baseUrl3 + config.apiEndPoints.saveExpense;
+  console.log("it is coming here");
+  const apiEndPoint = config.baseUrl + config.apiName.saveExpense;
+
+  console.log("add expense endpoint", apiEndPoint);
   try {
     const res = await services.post(apiEndPoint, payload);
+    // console.log("inside try block");
+
     if (res) {
       return res;
     }
@@ -44,11 +51,13 @@ const addExpense = async (payload) => {
 };
 
 const getTableData = async (payload) => {
-  const userID = 1;
+  // const userID = 1;
 
-  const apiEndPoint = config.baseUrl3 + config.apiName.getTableData;
+  const apiEndPoint = config.baseUrl + config.apiName.getTableData;
   try {
-    const res = await services.get(apiEndPoint, { userID });
+    // const res = await services.get(apiEndPoint, { userID });
+    const res = await services.get(apiEndPoint + `?userID=${userID}`);
+
     if (res) {
       return res;
     }
